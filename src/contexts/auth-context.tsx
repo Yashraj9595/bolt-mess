@@ -93,6 +93,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any | null>(null)
 
+  // Add updateUser function
+  const updateUser = useCallback((updatedUser: any) => {
+    setUser(updatedUser)
+    localStorage.setItem("auth_user", JSON.stringify(updatedUser))
+  }, [])
+
   // Restore auth state from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("auth_user")
@@ -659,6 +665,94 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [login])
 
+  const updateProfile = useCallback(async (profileData: any): Promise<boolean> => {
+    setIsLoading(true)
+    try {
+      const token = localStorage.getItem("auth_token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData),
+        credentials: "include"
+      })
+
+      const responseText = await response.text()
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        data = { error: { message: responseText || "An unexpected error occurred" } }
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Failed to update profile")
+      }
+
+      // Update user state with new data
+      updateUser(data.data.user)
+      return true
+    } catch (error) {
+      console.error('Update profile error:', error)
+      handleApiError(error)
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [updateUser])
+
+  const uploadAvatar = useCallback(async (file: File): Promise<string | null> => {
+    setIsLoading(true)
+    try {
+      const token = localStorage.getItem("auth_token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const formData = new FormData()
+      formData.append('avatar', file)
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/upload-avatar`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData,
+        credentials: "include"
+      })
+
+      const responseText = await response.text()
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        data = { error: { message: responseText || "An unexpected error occurred" } }
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Failed to upload avatar")
+      }
+
+      // Update user with new avatar URL
+      const updatedUser = { ...user, avatar: data.data.avatarUrl }
+      updateUser(updatedUser)
+      
+      return data.data.avatarUrl
+    } catch (error) {
+      console.error('Upload avatar error:', error)
+      handleApiError(error)
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }, [user, updateUser])
+
   const logout = useCallback(() => {
     setUser(null)
     setIsAuthenticated(false)
@@ -684,7 +778,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
     verifyPasswordResetOTP,
     resendPasswordResetOTP,
-    loginAfterRegistration
+    loginAfterRegistration,
+    updateUser,
+    updateProfile,
+    uploadAvatar
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

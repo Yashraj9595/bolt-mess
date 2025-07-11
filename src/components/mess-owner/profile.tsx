@@ -18,7 +18,7 @@ import { useTheme } from "@/components/theme/theme-provider";
 import { format } from "date-fns"
 
 export function Profile() {
-  const { user, updateUser, logout } = useAuth()
+  const { user, updateUser, logout, updateProfile, uploadAvatar } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [avatar, setAvatar] = useState<string | null>(user?.avatar || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -63,29 +63,37 @@ export function Profile() {
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({ 
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive"
+        })
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ 
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive"
+        })
+        return
+      }
+
       try {
         // Convert to base64 for preview
         const reader = new FileReader()
         reader.onload = () => setAvatar(reader.result as string)
         reader.readAsDataURL(file)
   
-        // Create form data for upload
-        const formData = new FormData()
-        formData.append('avatar', file)
-
-        // Upload to server
-        const response = await fetch('/api/auth/upload-avatar', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-
-        if (!response.ok) throw new Error('Failed to upload avatar')
-
-        const data = await response.json()
-        updateUser({ ...user, avatar: data.avatarUrl })
+        // Upload to server using auth context
+        const avatarUrl = await uploadAvatar(file)
+        if (avatarUrl) {
+          setAvatar(avatarUrl)
+        }
         toast({ title: "Avatar updated successfully" })
       } catch (error) {
         console.error('Avatar upload failed:', error)
@@ -120,19 +128,11 @@ export function Profile() {
 
   const handleSave = async () => {
     try {
-      const response = await fetch('/api/auth/profile', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) throw new Error('Failed to update profile')
-
-      const data = await response.json()
-      updateUser(data.data.user)
+      const success = await updateProfile(formData)
+      if (!success) {
+        throw new Error('Failed to update profile')
+      }
+      
       setIsEditing(false)
       toast({ title: "Profile updated successfully" })
     } catch (error) {
@@ -201,7 +201,7 @@ export function Profile() {
             <Avatar className="w-full h-full">
               <AvatarImage src={avatar} alt={user?.name} />
               <AvatarFallback>
-                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
+                {user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ) : (
@@ -247,6 +247,7 @@ export function Profile() {
             value={formData.name}
             onChange={(e) => handleInputChange(e, 'name')}
             disabled={!isEditing}
+            placeholder="Enter your full name"
           />
         </div>
         <div className="space-y-2">
@@ -256,6 +257,7 @@ export function Profile() {
             onChange={(e) => handleInputChange(e, 'email')}
             disabled={!isEditing}
             type="email"
+            placeholder="Enter your email address"
           />
         </div>
         <div className="space-y-2">
@@ -265,6 +267,7 @@ export function Profile() {
             onChange={(e) => handleInputChange(e, 'phone')}
             disabled={!isEditing}
             type="tel"
+            placeholder="Enter your phone number"
           />
         </div>
         <div className="space-y-2">
