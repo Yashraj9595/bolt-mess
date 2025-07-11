@@ -1,0 +1,257 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Custom color utility classes */
+.bg-primary-blue {
+  background-color: #145374;
+}
+
+.bg-secondary-blue {
+  background-color: #5588A3;
+}
+
+.bg-dark-blue {
+  background-color: #00334E;
+}
+
+.bg-neutral-gray {
+  background-color: #E8E8E8;
+}
+
+.text-primary-blue {
+  color: #145374;
+}
+
+.text-secondary-blue {
+  color: #5588A3;
+}
+
+.text-dark-blue {
+  color: #00334E;
+}
+
+.text-neutral-gray {
+  color: #E8E8E8;
+}
+
+.border-primary-blue {
+  border-color: #145374;
+}
+
+.border-secondary-blue {
+  border-color: #5588A3;
+}
+
+.border-dark-blue {
+  border-color: #00334E;
+}
+
+.border-neutral-gray {
+  border-color: #E8E8E8;
+}
+
+/* Custom scrollbar for better dark mode visibility */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--secondary));
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent-foreground));
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.4);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.6);
+}
+
+/* Custom animations */
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Enhanced smooth theme transitions */
+html {
+  transition: color-scheme 0.5s ease;
+}
+
+body,
+.transition-theme {
+  transition: background-color 0.3s ease-in-out, 
+              border-color 0.3s ease-in-out, 
+              color 0.3s ease-in-out;
+}
+
+/* Prevent transition on page load */
+.no-transition * {
+  transition: none !important;
+}
+
+/* Custom gradient backgrounds */
+.gradient-primary {
+  @apply bg-gradient-to-r from-primary-blue to-dark-blue;
+}
+
+.gradient-secondary {
+  @apply bg-gradient-to-r from-secondary-blue to-primary-blue;
+}
+
+/* Enhanced glass morphism effect */
+.glass {
+  @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+.dark .glass {
+  @apply bg-dark-blue/30 border-white/10;
+}
+
+/* Custom utility classes */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-blue to-secondary-blue;
+}
+
+.hover-card {
+  @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
+}
+
+.nav-item {
+  @apply transition-all duration-300 hover:bg-primary-blue/10 dark:hover:bg-primary-blue/20;
+}
+
+.button-gradient {
+  @apply bg-gradient-to-r from-primary-blue to-dark-blue hover:from-dark-blue hover:to-primary-blue text-white shadow-md hover:shadow-lg transition-all duration-300;
+}
+
+/* Fix for gradient text in Safari */
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Touch manipulation to prevent zoom on input focus on mobile */
+input, textarea, select, button {
+  touch-action: manipulation;
+}
+
+/* Prevent cursor jumping in inputs */
+input, textarea {
+  caret-color: currentColor;
+  transition: background-color 0.3s ease-in-out, 
+              border-color 0.3s ease-in-out, 
+              color 0.3s ease-in-out;
+}
+
+/* Disable transitions during typing to prevent cursor jumps */
+input:focus, textarea:focus {
+  transition: none;
+}
+
+/* Additional fixes for cursor jumping in input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+textarea {
+  /* Force hardware acceleration to prevent cursor jumping */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  
+  /* Ensure consistent rendering */
+  will-change: transform;
+}
+
+/* Prevent layout shifts during typing */
+input:focus-within,
+textarea:focus-within {
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent animations during active typing to avoid cursor jumping */
+input:focus,
+textarea:focus {
+  animation: none !important;
+}
